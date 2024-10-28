@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [clj-http "3.13.0"]
                  [org.clj-commons/hickory "0.7.3"]
-                 [seesaw "1.5.0"]]
+                 [seesaw "1.5.0"]
+                 [org.clojure/core.async "1.6.681"]]
   :repl-options {:init-ns labs.lab1})

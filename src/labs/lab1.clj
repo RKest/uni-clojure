@@ -32,7 +32,7 @@
   (if (not= 2 (count args))
     (println "lein run -m labs.lab1 -- URL MAX_DEPTH")
     (let [url (nth args 0) max_depth (Integer/parseInt (nth args 1))]
-    (->>
+    (time (->>
       (get_links url 0 max_depth)
       (distinct)
-      (run! println)))))
+      (run! println))))))
