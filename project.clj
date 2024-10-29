@@ -7,5 +7,6 @@
                  [clj-http "3.13.0"]
                  [org.clj-commons/hickory "0.7.3"]
                  [seesaw "1.5.0"]
-                 [org.clojure/core.async "1.6.681"]]
+                 [org.clojure/core.async "1.6.681"]
+                 [org.clojure/core.match "1.1.0"]]
   :repl-options {:init-ns labs.lab1})
