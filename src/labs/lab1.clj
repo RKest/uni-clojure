@@ -4,35 +4,25 @@
   (:require [hickory.select :as s])
   (:require [clojure.string :as str]))
 
-(defn internal_href? [url] (str/starts-with? url "/wiki"))
-(defn section_href? [url] (str/includes? url ":"))
-(defn main_page_href? [url] (str/includes? url "Main_Page"))
-(defn make_full_href [url] (str "https://en.wikipedia.org" url))
-(defn href [tag] (get-in tag [:attrs :href]))
+(def result (atom #{}))
 
-(defn links_for_url [url]
-  (reduce conj [] (->> url
-    client/get :body h/parse h/as-hickory
-    (s/select (s/tag :a))
-    (map href)
-    (filter (comp not nil?))
-    (filter internal_href?)
-    (filter (comp not main_page_href?))
-    (filter (comp not section_href?))
-    (map make_full_href)
-    (distinct))))
+(defn hrefs-on-page [url] (->>
+  (client/get url) :body h/parse h/as-hickory (s/select (s/tag :a))
+  (map #(get-in % [:attrs :href]))
+  (filter (every-pred some? #(str/starts-with? % "/wiki")))
+  (remove #(str/includes? % ":"))
+  (remove #(str/includes? % "Main_Page"))
+  (map #(str "https://en.wikipedia.org" %))
+  (remove #(@result %))))
 
-(defn get_links [url depth max_depth]
-  (if (= depth max_depth) '()
-  (let [links (links_for_url url) next_depth_links #(get_links % (+ 1 depth) max_depth)] 
-    (concat links (reduce concat (map next_depth_links links))))))
+(defn run [depth url]
+  (swap! result conj url)
+  (when-not (zero? depth) (doseq [u (hrefs-on-page url)] (run (dec depth) u))))
 
-(defn -main
-  [& args]
+(defn -main [& args]
   (if (not= 2 (count args))
     (println "lein run -m labs.lab1 -- URL MAX_DEPTH")
     (let [url (nth args 0) max_depth (Integer/parseInt (nth args 1))]
-    (time (->>
-      (get_links url 0 max_depth)
-      (distinct)
-      (run! println))))))
+      (time (run max_depth url))
+      (doseq [u @result] (println u))
+    )))
