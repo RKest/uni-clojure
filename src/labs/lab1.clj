@@ -24,5 +24,5 @@
     (println "lein run -m labs.lab1 -- URL MAX_DEPTH")
     (let [url (nth args 0) max_depth (Integer/parseInt (nth args 1))]
       (time (run max_depth url))
-      (doseq [u @result] (println u))
+      (doseq [v @result] (println v))
     )))
